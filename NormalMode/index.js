@@ -51,7 +51,9 @@ class Player{
         this.base.draw()
         //drawing the healthbar
         Health.update(this.base.health)
-        //Drawing 
+        //Checking
+
+
         
 
     }
@@ -72,12 +74,13 @@ class Attackers {
         this.x += 0.25/2*canvas.width
         this.y = Math.random() * canvas.height *0.1;
         this.speed = 0.5
+        this.radius = 20
     }
 
     draw(ctx){
         ctx.strokeStyle = 'blue'
         ctx.beginPath()
-        ctx.arc(this.x , this.y, 20, 0, Math.PI * 2, true)
+        ctx.arc(this.x , this.y, this.radius, 0, Math.PI * 2, true)
         ctx.stroke();
     }
 
@@ -160,18 +163,34 @@ function gameloop(){
     requestAnimationFrame(gameloop)
     player.update()   //player is drawn
 
-
-    // for(let i =0 ; i < projectiles.length ; i++){
-    //     for(let j =0; j < attackerpool.length ; j++){
-    //         if( i.x === )
-    //     }
-    // }
+    for(let i =0 ; i < projectiles.length ; i++){
+        let p_x =projectiles[i].position.x
+        let p_y = projectiles[i].position.y
+        // console.log(projectiles[i].position.x, projectiles[i].position.y)
+        for(let j =0; j < player.attackerpool.length ; j++){
+            let a_x = player.attackerpool[j].x
+            let a_y = player.attackerpool[j].y
+            if( (p_x - a_x)**2 + (p_y - a_y)**2 - player.attackerpool[j].radius**2 < 0){
+                projectiles.splice(i,1)
+                player.attackerpool.splice(j,1)
+                console.log("BOOOM")
+            }
+            // console.log(player.attackerpool[j].x, player.attackerpool[j].y)
+        }
+    }
     
     //Deleting the projectiles which go out of screen, so as to preserve memory
     projectiles.forEach((projectile,index) => {                
         if(projectile.position.y + projectile.radius <= 0){
             projectiles.splice(index,1)
-        }else{
+        }else if(projectile.position.x + projectile.radius <=0){
+            projectiles.splice(index,1)
+        }else if(projectile.position.x - projectile.radius >=canvas.width){
+            projectiles.splice(index,1)
+        }else if(projectile.position.y - projectile.radius >=canvas.height){
+            projectiles.splice(index,1)
+        }
+        else{
             projectile.update()
         }
     })
@@ -195,25 +214,10 @@ addEventListener('keydown', ({key}) => {
             break
         case ' ':
             player.base.health -= 10
-            console.log(player.base.health)
+
         }
 })
 
-// addEventListener("click", function (e) {
-//         let slope = ((player.position.y + player_height/2) - e.clientY )/ (e.clientX - (player.position.x + player_width/2))
-//         projectiles.push(new projectile({
-//             position:{
-//                 x:player.position.x  + player.width /2,
-//                 y:player.position.y + player_height/2
-//             },
-//             velocity:{
-//                 // x:5 * Math.cos( Math.atan(slope)),
-//                 // y:-5 * Math.sin( Math.atan(slope)),
-//                 x:0,
-//                 y:-5
-//             }
-//         }))
-// })
 addEventListener("click", function (e) {
     let m_x = e.clientX
     let m_y = e.clientY
