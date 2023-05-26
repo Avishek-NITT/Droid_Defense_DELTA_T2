@@ -51,6 +51,8 @@ class Player{
         this.base.draw()
         //drawing the healthbar
         Health.update(this.base.health)
+        //Drawing 
+        
 
     }
     update(){
@@ -197,21 +199,41 @@ addEventListener('keydown', ({key}) => {
         }
 })
 
+// addEventListener("click", function (e) {
+//         let slope = ((player.position.y + player_height/2) - e.clientY )/ (e.clientX - (player.position.x + player_width/2))
+//         projectiles.push(new projectile({
+//             position:{
+//                 x:player.position.x  + player.width /2,
+//                 y:player.position.y + player_height/2
+//             },
+//             velocity:{
+//                 // x:5 * Math.cos( Math.atan(slope)),
+//                 // y:-5 * Math.sin( Math.atan(slope)),
+//                 x:0,
+//                 y:-5
+//             }
+//         }))
+// })
 addEventListener("click", function (e) {
-        let slope = ((player.position.y + player_height/2) - e.clientY )/ (e.clientX - (player.position.x + player_width/2))
-        projectiles.push(new projectile({
-            position:{
-                x:player.position.x  + player.width /2,
-                y:player.position.y + player_height/2
-            },
-            velocity:{
-                // x:5 * Math.cos( Math.atan(slope)),
-                // y:-5 * Math.sin( Math.atan(slope)),
-                x:0,
-                y:-5
-            }
-        }))
+    let m_x = e.clientX
+    let m_y = e.clientY
+    let p_x = player.position.x
+    let p_y = player.position.y
+    let mod = Math.sqrt( ( m_x -p_x)**2  + (m_y-p_y)**2)
+    const scaling_x = (m_x-p_x)/mod
+    const scaling_y = (m_y-p_y)/mod
+    projectiles.push(new projectile({
+        position:{
+            x:player.position.x  + player.width /2,
+            y:player.position.y + player_height/2
+        },
+        velocity:{
+            x:5 * scaling_x,
+            y:5* scaling_y
+        }
+    }))
 })
+
 
 
 
