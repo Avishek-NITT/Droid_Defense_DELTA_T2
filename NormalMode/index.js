@@ -238,12 +238,12 @@ gameloop()   //Runs the game
 
 addEventListener('keydown', ({key}) => {
     switch(key){
-        case 'w':
-            player.velocity.y = -10
-            break
-        case 's':
-            player.velocity.y = 10
-            break
+        // case 'w':
+        //     player.velocity.y = -10
+        //     break
+        // case 's':
+        //     player.velocity.y = 10
+        //     break
         case 'a':
             player.velocity.x = -10
             break
