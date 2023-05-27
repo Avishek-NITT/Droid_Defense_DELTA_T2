@@ -16,7 +16,10 @@ attacker_audio.volume = 0.15
 let collision_audio = new Audio("Audio/bomb.mp3");
 collision_audio.volume = 0.02
 let laser_audio = new Audio("Audio/laser.mp3")
+let missile_audio = new Audio("Audio/missile.mp3")
 let timerId
+let missile_exists = 0
+let missile
 
 class Player{
     constructor(){
@@ -303,6 +306,52 @@ class attacker_projectile{
     }
 }
 
+
+class attacker_missile{
+    constructor(x,y,rotation){
+        this.x = x 
+        this.y = y
+        this.velocity_x=0
+        this.velocity_y=-1
+        this.width = 40
+        this.height = 40
+        this.rotation = rotation
+        const img = new Image()
+        img.src = './Pictures/homing_missile.png'
+        this.image = img
+    }
+
+    draw(){
+        ctx.save()
+        ctx.translate(this.x + this.width/2, this.y +this.height/2)
+        ctx.rotate(this.rotation)
+        ctx.translate(-this.x -this.width/2, -this.y -this.height/2)
+        ctx.drawImage(this.image, this.x, this.y, this.width,this.height)
+        ctx.restore()
+    }
+
+    update(p_x, p_y){
+        let m_x = this.x
+        let m_y = this.y
+        let mod = Math.sqrt((m_x -p_x)**2 + (m_y - p_y)**2)
+        const scaling_x = (m_x - p_x)/mod
+        const scaling_y = (m_y - p_y)/mod
+        this.velocity_x = -1 *scaling_x
+        this.velocity_y = -1 *scaling_y
+        this.x += this.velocity_x
+        this.y += this.velocity_y
+        let rot = Math.acos((m_y -p_y)/mod)
+        if(p_x > m_x >  0){
+            this.rotation = rot
+        }else{
+            this.rotation = -rot
+        } 
+        this.draw()
+    }
+}
+
+
+
 const player = new Player()   //Every class is spawned in player class
 const Health = new HealthBar(10,10,150,20,100)
 const player_Health = new player_HealthBar(player.position.x, player.position.y,player.width,10,player.player_health)
@@ -365,10 +414,9 @@ function gameloop(){
 
 
     //Checking if attacker shoots or not
-    let r = Math.random() * 300
+    let r = Math.random() * 3000
     let index = Math.round(Math.random() * player.attackerpool.length)
-    if( r > 8 && r < 12 && player.attackerpool.length >1){        
-
+    if( r > 85 && r < 115 && player.attackerpool.length >1){        
         let b_x = player.attackerpool[index].x
         let b_y = player.attackerpool[index].y
         let p_x = player.position.x + player.width/2
@@ -390,6 +438,47 @@ function gameloop(){
         attacker_audio.currentTime =0
         attacker_audio.play()
     }
+
+
+    //Checking if attacker shoots homing missile
+    if(r >500 && r <505 && player.attackerpool.length >1 && missile_exists == 0){
+        missile_exists = 1
+        let index = Math.round(Math.random() * player.attackerpool.length)
+        missile = new attacker_missile(player.attackerpool[1].x, player.attackerpool[1].y, 0)
+    }
+    if(missile_exists){
+        missile.update(player.position.x + player.width/2, player.position.y + player.height/2)
+        let p_x = player.position.x
+        let p_y = player.position.y
+        let  = missile
+        for(let i =0 ; i < player_projectiles.length ; i++){
+            let p_x =player_projectiles[i].position.x
+            let p_y = player_projectiles[i].position.y
+            let m_x = missile.x
+            let m_y = missile.y
+            if( (p_x > m_x && p_x  < m_x + missile.width) && (p_y > m_y  &&  p_y < m_y + missile.height)){
+                missile.y =0
+                missile.width = 0
+                missile.height =0
+                missile_exists =0
+                player_projectiles.splice(i,1)
+            }
+        }
+
+
+        if(missile.x > p_x && missile.x < p_x + player.width && missile.y > p_y && missile.y < p_y + player.height){
+            missile_audio.currentTime = 0
+            missile_audio.play()
+            player.player_health -= 30
+            missile.x =0
+            missile.y =0
+            missile.width = 0
+            missile.height =0
+            missile_exists =0
+        }
+    }
+
+    
 
     //Checking if attacker's projectile hits player
     for(let i =0 ; i < attacker_projectiles.length ; i++){
