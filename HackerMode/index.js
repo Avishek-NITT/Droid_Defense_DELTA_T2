@@ -9,13 +9,21 @@ let player_width = 60
 let player_height = 60
 let homebase_width = canvas.width*0.8
 let homebase_height = canvas.height*0.15
-
+let powerup_exist = 0
+let d
+let power_x, power_y
+let playershoot_audio = new Audio("Audio/Player_shoot.mp3");
+playershoot_audio.volume = 0.5
+let attacker_audio = new Audio("Audio/attacker_shoot.mp3");
+attacker_audio.volume = 0.3
+let collision_audio = new Audio("Audio/bomb.mp3");
+collision_audio.volume = 0.05
 
 class Player{
     constructor(){
         this.width = player_width
         this.height = player_height
-        this.max = 15
+        this.max = 5
         this.attackerpool = []
         this.player_health = 100;
         this.base = new Base();
@@ -34,7 +42,7 @@ class Player{
         this.image = img
 
         const bg_img = new Image()
-        bg_img.src = './Pictures/background.png'
+        bg_img.src = './Pictures/background.jpg'
         this.bg_img = bg_img
         
 
@@ -239,7 +247,7 @@ class attacker_projectile{
         ctx.restore()
         ctx.beginPath()
         ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI *2)
-        ctx.fillStyle = 'black'
+        ctx.fillStyle = 'red'
         ctx.fill()
         ctx.closePath()
     }
@@ -332,6 +340,8 @@ function gameloop(){
             },
             rotation : 0
         }))
+        collision_audio.currentTime = 0
+        attacker_audio.play()
     }
 
     //Checking if attacker's projectile hits player
@@ -342,6 +352,8 @@ function gameloop(){
         if( a.position.x > p_x && a.position.x < p_x + player.width && a.position.y > p_y && a.position.y < p_y + player.height){
             attacker_projectiles.splice(i,1)
             player.player_health -=10
+            collision_audio.currentTime =0
+            collision_audio.play()
         }
     }
 
@@ -353,9 +365,69 @@ function gameloop(){
             player.attackerpool.splice(i,1)
         }
     }
+
+    //Check if powerup is spawned or not
+    if(powerup_exist == 0){
+        d = Math.random() * 1000
+    }    
+    if(d > 8 && d < 11 && powerup_exist == 0){
+        d = Math.round(Math.random() * 2)
+        spawn_powerup(Math.round(d))
+    }
+    
+    if(powerup_exist ==1){
+        spawn_powerup(Math.round(d))
+    }
+    for(let i =0 ; i < player_projectiles.length ; i++){
+        let p_x =player_projectiles[i].position.x
+        let p_y = player_projectiles[i].position.y
+        if(p_x > power_x && p_x < power_x +45){
+            if(p_y > power_y && p_y < power_y + 45){
+                
+                if(d==0){
+                    player.base.health += 30
+                    player.player_health +=30
+                    if(player.base.health > 100){
+                        player.base.health = 100
+                    }
+                    if(player.player_health > 100)
+                        player.player_health = 100
+                }
+                else if(d==1){
+                    let remove = Math.round(Math.random() * player.attackerpool.length)
+                    while(remove){
+                        player.attackerpool.pop()
+                        remove--
+                    } 
+                }
+                powerup_exist =0
+            }
+        }
+    }
+
+    
 }
 gameloop()   //Runs the game
 
+
+function spawn_powerup(d){
+    const img = new Image()
+    if(powerup_exist == 0){
+        power_x = Math.random() * canvas.width* 0.8  + 0.1*canvas.width
+        power_y = Math.random() * canvas.height* 0.7
+    }
+    if(d ==0 ){ // health
+        img.src = './Pictures/Heart.png'
+    }else if(d==1){
+        img.src = './Pictures/kill.png'
+    }else{
+        powerup_exist =0
+        return
+    }
+    ctx.drawImage(img, power_x, power_y, 45, 45)
+    powerup_exist =1
+    
+}
 
 addEventListener('keydown', ({key}) => {
     switch(key){
@@ -400,6 +472,8 @@ addEventListener("click", function (e) {
         },
         rotation : rot
     }))
+    playershoot_audio.currentTime = 0
+    playershoot_audio.play()
 })
 
 
