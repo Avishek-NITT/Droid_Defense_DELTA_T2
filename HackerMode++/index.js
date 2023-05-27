@@ -9,7 +9,14 @@ let player_width = 60
 let player_height = 60
 let homebase_width = canvas.width*0.1
 let homebase_height = canvas.height*0.15
-
+let playershoot_audio = new Audio("Audio/Player_shoot.mp3");
+playershoot_audio.volume = 0.5
+let attacker_audio = new Audio("Audio/attacker_shoot.mp3");
+attacker_audio.volume = 0.15
+let collision_audio = new Audio("Audio/bomb.mp3");
+collision_audio.volume = 0.02
+let laser_audio = new Audio("Audio/laser.mp3")
+let timerId
 
 class Player{
     constructor(){
@@ -19,6 +26,7 @@ class Player{
         this.attackerpool = []
         this.player_health = 100;
         this.base = new Base();
+        
         this.health = new HealthBar(10,10,150,20,this.base.health)
         this.position = {
             x : canvas.width/2 - this.width/2  ,
@@ -33,7 +41,7 @@ class Player{
         this.image = img
 
         const bg_img = new Image()
-        bg_img.src = './Pictures/background.png'
+        bg_img.src = './Pictures/background.jpg'
         this.bg_img = bg_img
         
 
@@ -88,7 +96,6 @@ class Player{
         ctx.restore()
         
         //drawing the attackers
-        
         this.attackerpool.forEach(attacker => {
             attacker.draw(ctx)
             attacker.update()
@@ -101,7 +108,7 @@ class Player{
         //drawing the healthbar
         Health.update(this.base.health)
         //Checking if any wave is finished
-        if(this.attackerpool.length ===0){
+        if(this.attackerpool.length ===1){
             this.spawn_attacker()
         }
         //Cheking if health is done
@@ -111,6 +118,7 @@ class Player{
         if(player.player_health <= 0){
             cancelAnimationFrame(animation)
         }
+        
     }
     update(){
         this.position.x += this.velocity.x
@@ -137,7 +145,7 @@ class Attackers {
     }
 
     draw(ctx){
-        ctx.strokeStyle = 'blue'
+        ctx.strokeStyle = 'transparent'
         ctx.beginPath()
         ctx.arc(this.x , this.y, this.radius, 0, Math.PI * 2, true)
         ctx.stroke();
@@ -189,11 +197,27 @@ class Base{
         this.width = homebase_width;
         this.height = homebase_height ;
         this.health = 100;
+        this.defense_radius = 3*(this.width/2)
+        this.can_shoot = 1
+        this.cool_time = 2
+        this.cooldown_time = this.cool_time
+        this.progress = this.cooldown_time/ this.cool_time
     }
 
     draw(){
         ctx.fillStyle = 'yellow'
         ctx.fillRect(this.x, this.y, this.width, this.height)
+        ctx.fillStyle = 'green'
+        ctx.fillRect(this.x , this.y +this.height +2, this.progress * this.width , 5)
+    }
+
+    shoot(attacker_x, attacker_y){
+        ctx.beginPath()
+        ctx.strokeStyle = 'red'
+        ctx.lineWidth = 10
+        ctx.moveTo(this.x + this.width/2,this.y + this.height/2)
+        ctx.lineTo(attacker_x,attacker_y)
+        ctx.stroke()
     }
 
 }
@@ -267,7 +291,7 @@ class attacker_projectile{
         ctx.restore()
         ctx.beginPath()
         ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI *2)
-        ctx.fillStyle = 'black'
+        ctx.fillStyle = 'red'
         ctx.fill()
         ctx.closePath()
     }
@@ -289,8 +313,8 @@ const attacker_projectiles = []
 let animation;
 function gameloop(){
     animation = requestAnimationFrame(gameloop)
-    player.update()   //player is drawn
-    
+    player.update()   //player is drawn    
+
     //Checking if projectile hits Attackers
     for(let i =0 ; i < player_projectiles.length ; i++){
         let p_x =player_projectiles[i].position.x
@@ -301,6 +325,8 @@ function gameloop(){
             if( (p_x - a_x)**2 + (p_y - a_y)**2 - player.attackerpool[j].radius**2 < 0){
                 player_projectiles.splice(i,1)
                 player.attackerpool.splice(j,1)
+                collision_audio.currentTime =0
+                collision_audio.play()
             }
         }
     }
@@ -341,7 +367,7 @@ function gameloop(){
     //Checking if attacker shoots or not
     let r = Math.random() * 300
     let index = Math.round(Math.random() * player.attackerpool.length)
-    if( r > 8 && r < 12 && player.attackerpool.length != index){        
+    if( r > 8 && r < 12 && player.attackerpool.length >1){        
 
         let b_x = player.attackerpool[index].x
         let b_y = player.attackerpool[index].y
@@ -361,6 +387,8 @@ function gameloop(){
             },
             rotation : 0
         }))
+        attacker_audio.currentTime =0
+        attacker_audio.play()
     }
 
     //Checking if attacker's projectile hits player
@@ -371,6 +399,8 @@ function gameloop(){
         if( a.position.x > p_x && a.position.x < p_x + player.width && a.position.y > p_y && a.position.y < p_y + player.height){
             attacker_projectiles.splice(i,1)
             player.player_health -=10
+            collision_audio.currentTime =0
+            collision_audio.play()
         }
     }
 
@@ -385,9 +415,39 @@ function gameloop(){
             }
         }
     }
+
+    //Base shoots back
+    // player.base.shoot(player.position.x + player.width/2, player.position.y + player.height/2)
+    for(let i = 0; i < player.attackerpool.length; i++){
+        let a = player.attackerpool[i]
+        let b = player.base
+        if( ((a.x + a.radius)-(b.x + b.width/2))**2 + ((a.y +a.radius)-(b.x + b.height/2))**2 <  b.defense_radius**2 ){
+            if(b.can_shoot == 1){
+                b.shoot(a.x , a.y)
+                laser_audio.play()
+                b.can_shoot=0
+                b.cooldown_time =0
+                timerId = setInterval(countDown,50)
+                player.attackerpool.splice(i,1)
+            }
+            
+        }
+    }
 }
+
+
 gameloop()   //Runs the game
 
+
+function countDown(){
+    player.base.cooldown_time+= 0.05; 
+    player.base.progress = player.base.cooldown_time/ player.base.cool_time
+    if(player.base.cooldown_time >=  player.base.cool_time){
+        clearInterval(timerId);
+        player.base.cooldown_time =player.base.cool_time
+        player.base.can_shoot = 1
+    }
+}
 
 addEventListener('keydown', ({key}) => {
     switch(key){
@@ -432,6 +492,8 @@ addEventListener("click", function (e) {
         },
         rotation : rot
     }))
+    playershoot_audio.currentTime = 0
+    playershoot_audio.play()
 })
 
 

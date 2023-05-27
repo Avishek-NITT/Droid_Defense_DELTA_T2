@@ -281,6 +281,8 @@ function gameloop(){
             if( (p_x - a_x)**2 + (p_y - a_y)**2 - player.attackerpool[j].radius**2 < 0){
                 player_projectiles.splice(i,1)
                 player.attackerpool.splice(j,1)
+                collision_audio.currentTime =0
+                collision_audio.play()
             }
         }
     }
@@ -320,8 +322,8 @@ function gameloop(){
 
     //Checking if attacker shoots or not
     let r = Math.random() * 300
-    if( r > 8 && r < 12){
-        let index = Math.round(Math.random() * player.attackerpool.length)
+    let index = Math.round(Math.random() * player.attackerpool.length)
+    if( r > 8 && r < 12 && player.attackerpool.length != index){        
         let b_x = player.attackerpool[index].x
         let b_y = player.attackerpool[index].y
         let p_x = player.position.x + player.width/2
