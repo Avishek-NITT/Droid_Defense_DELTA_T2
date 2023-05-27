@@ -46,7 +46,6 @@ class Player{
         let x,y
         for(let i =0 ; i < this.max ; i++){ 
             c = Math.round(Math.random() * 3)       
-             
             switch (c){
                 case 0: //Spawns at left side of screen
                     x = Math.random() * canvas.width * 0.2
