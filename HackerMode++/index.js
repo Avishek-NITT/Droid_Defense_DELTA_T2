@@ -20,12 +20,14 @@ let missile_audio = new Audio("Audio/missile.mp3")
 let timerId
 let missile_exists = 0
 let missile
+let boss
+let boss_exists = 0
 
 class Player{
     constructor(){
         this.width = player_width
         this.height = player_height
-        this.max = 6
+        this.max = 4
         this.attackerpool = []
         this.player_health = 100;
         this.base = new Base();
@@ -94,8 +96,25 @@ class Player{
             const scaling_y = (y-p_y)/mod
             let speed = 2
             this.attackerpool.push(new Attackers(this,x,y,-speed * scaling_x,-speed * scaling_y))
-            console.log(x,y)
         }
+
+        //Deciding if boss should spawn or not
+        let g = Math.random() * 20
+        g = 8
+        if(g > 7 && g < 13 && boss_exists ==0){
+            let b_x = Math.random() * canvas.width
+            let b_y = Math.random() * canvas.height * 0.2
+            let p_x = this.base.x + this.base.width /2
+            let p_y = this.base.y + this.base.height /2
+            let mod = Math.sqrt( (b_x -p_x)**2  + (b_y-p_y)**2)
+            const scaling_x = (b_x-p_x)/mod
+            const scaling_y = (b_y-p_y)/mod
+            let speed = 1
+            boss = new boss_attacker(this,b_x, b_y, -speed*scaling_x, -speed* scaling_y)
+            boss_exists =1
+        }
+        
+
     }
 
     draw(){
@@ -132,6 +151,11 @@ class Player{
         if(player.player_health <= 0){
             cancelAnimationFrame(animation)
         }
+
+        //Drawing boss
+        if(boss_exists){
+            boss.update()
+        }
         
     }
     update(){
@@ -167,6 +191,33 @@ class Attackers {
     }
 
     update(){
+        this.x += this.speed_x
+        this.y += this.speed_y
+    }
+}
+
+class boss_attacker{
+    constructor(game,x,y,speed_x, speed_y){
+        this.game = game
+        this.x = x
+        this.y = y
+        this.speed_x = speed_x
+        this.speed_y = speed_y
+        this.radius = 60
+        this.extra = 25
+        const img = new Image()
+        img.src = './Pictures/enemy.png'
+        this.image = img
+    }
+    draw(ctx){
+        ctx.strokeStyle = 'transparent'
+        ctx.beginPath()
+        ctx.arc(this.x , this.y, this.radius, 0, Math.PI * 2, true)
+        ctx.stroke();
+        ctx.drawImage(this.image, this.x-this.radius -this.extra, this.y-this.radius-this.extra+2, 2*(this.radius+this.extra),2*(this.radius+this.extra))
+    }
+    update(){
+        this.draw(ctx)
         this.x += this.speed_x
         this.y += this.speed_y
     }
@@ -376,7 +427,6 @@ function gameloop(){
     player.update()   //player is drawn    
     //Checking if any wave is finished
     if(player.attackerpool.length ===0){
-        console.log(player.attackerpool.length)
         player.spawn_attacker()        
     }
     //Checking if projectile hits Attackers
