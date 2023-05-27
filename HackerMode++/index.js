@@ -53,25 +53,39 @@ class Player{
     }
 
     spawn_attacker(){
-        let c
-        let x,y
+        let c = undefined
+        
         for(let i =0 ; i < this.max ; i++){ 
-            c = Math.round(Math.random() * 3)       
+            c = undefined
+            while(c == undefined){
+                c = Math.round(Math.random() * 3) 
+            }             
+            let x=undefined
+            let y =undefined     
             switch (c){
                 case 0: //Spawns at left side of screen
-                    x = Math.random() * canvas.width * 0.2
-                    y = Math.random() * canvas.height * 0.8
+                    while(x == undefined || y == undefined){
+                        x = Math.random() * canvas.width * 0.2
+                        y = Math.random() * canvas.height * 0.8
+                    }                    
                     break 
                 case 1: //Spawns at top of screen
-                    x = Math.random() * canvas.width
-                    y = Math.random() * canvas.height *0.2
+                    while(x == undefined || y == undefined){
+                        x = Math.random() * canvas.width
+                        y = Math.random() * canvas.height *0.2
+                    }
                     break
                 case 2: //Spawns at right side of screen
-                    x = Math.random() * canvas.width*0.2 + 0.8*canvas.width
-                    y = Math.random() * canvas.height * 0.8  
+                    while(x == undefined || y == undefined){
+                        x = Math.random() * canvas.width*0.2 + 0.8*canvas.width
+                        y = Math.random() * canvas.height * 0.8 
+                    }
                     break
             }  
-            
+            if(x == undefined || y == undefined){
+                i--
+                continue
+            }
             //Setting direction for attackers
             let p_x = this.base.x + this.base.width /2
             let p_y = this.base.y + this.base.height /2
@@ -80,6 +94,7 @@ class Player{
             const scaling_y = (y-p_y)/mod
             let speed = 2
             this.attackerpool.push(new Attackers(this,x,y,-speed * scaling_x,-speed * scaling_y))
+            console.log(x,y)
         }
     }
 
@@ -110,10 +125,6 @@ class Player{
         player_Health.update(this.player_health)
         //drawing the healthbar
         Health.update(this.base.health)
-        //Checking if any wave is finished
-        if(this.attackerpool.length ===1){
-            this.spawn_attacker()
-        }
         //Cheking if health is done
         if(player.base.health <= 0){
             cancelAnimationFrame(animation)
@@ -363,7 +374,11 @@ let animation;
 function gameloop(){
     animation = requestAnimationFrame(gameloop)
     player.update()   //player is drawn    
-
+    //Checking if any wave is finished
+    if(player.attackerpool.length ===0){
+        console.log(player.attackerpool.length)
+        player.spawn_attacker()        
+    }
     //Checking if projectile hits Attackers
     for(let i =0 ; i < player_projectiles.length ; i++){
         let p_x =player_projectiles[i].position.x
