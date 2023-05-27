@@ -9,7 +9,8 @@ let player_width = 60
 let player_height = 60
 let homebase_width = canvas.width*0.8
 let homebase_height = canvas.height*0.15
-
+let score = 0;
+// let highScore = localStorage.getItem("high-score") || 0;
 
 class Player{
     constructor(){
@@ -70,12 +71,16 @@ class Player{
         this.base.draw()
         //drawing the healthbar
         Health.update(this.base.health)
+        //Updating score
+        ctx.fillStyle='black'
+        ctx.font = "25px serif";
+        ctx.fillText(`Score : ${score}`, this.health.x+35   , this.health.y + this.health.height + 80)
         //Checking if any wave is finished
         if(this.attackerpool.length ===0){
             this.spawn_attacker()
         }
         //Cheking if health is done
-        if(player.base.health ===0){
+        if(player.base.health <=0){
             cancelAnimationFrame(animation)
         }
     }
@@ -97,13 +102,18 @@ class Attackers {
         this.y = Math.random() * canvas.height *0.1;
         this.speed = 1.3
         this.radius = 20
+        this.extra = 25
+        const img = new Image()
+        img.src = './Pictures/enemy.png'
+        this.image = img
     }
 
     draw(ctx){
-        ctx.strokeStyle = 'blue'
+        ctx.strokeStyle = 'transparent'
         ctx.beginPath()
         ctx.arc(this.x , this.y, this.radius, 0, Math.PI * 2, true)
         ctx.stroke();
+        ctx.drawImage(this.image, this.x-this.radius -this.extra, this.y-this.radius-this.extra+2, 2*(this.radius+this.extra),2*(this.radius+this.extra))
     }
 
     update(){
@@ -175,6 +185,9 @@ class HealthBar{
         ctx.fillRect(this.x -3, this.y-3, this.width + 6, this.height + 6)
         ctx.clearRect(this.x, this.y, this.width, this.height)
         ctx.fillStyle = 'green'
+        if(this.progress  < 0.4* this.width){
+            ctx.fillStyle ='red'
+        }
         ctx.fillRect(this.x, this.y, this.progress, this.height)
     }
     update(health){
@@ -193,7 +206,6 @@ let animation;
 function gameloop(){
     animation = requestAnimationFrame(gameloop)
     player.update()   //player is drawn
-    
     //Checking if projectile hits Attackers
     for(let i =0 ; i < projectiles.length ; i++){
         let p_x =projectiles[i].position.x
@@ -204,6 +216,7 @@ function gameloop(){
             if( (p_x - a_x)**2 + (p_y - a_y)**2 - player.attackerpool[j].radius**2 < 0){
                 projectiles.splice(i,1)
                 player.attackerpool.splice(j,1)
+                score++
             }
         }
     }

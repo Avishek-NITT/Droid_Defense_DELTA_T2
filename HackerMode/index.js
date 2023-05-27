@@ -103,7 +103,7 @@ class Attackers {
         this.y = Math.random() * canvas.height *0.1;
         this.speed = 1.3
         this.radius = 20
-        this.extra = 25
+        this.extra = 23
         const img = new Image()
         img.src = './Pictures/enemy.png'
         this.image = img
