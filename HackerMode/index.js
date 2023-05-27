@@ -103,13 +103,18 @@ class Attackers {
         this.y = Math.random() * canvas.height *0.1;
         this.speed = 1.3
         this.radius = 20
+        this.extra = 25
+        const img = new Image()
+        img.src = './Pictures/enemy.png'
+        this.image = img
     }
 
     draw(ctx){
-        ctx.strokeStyle = 'blue'
+        ctx.strokeStyle = 'transparent'
         ctx.beginPath()
         ctx.arc(this.x , this.y, this.radius, 0, Math.PI * 2, true)
         ctx.stroke();
+        ctx.drawImage(this.image, this.x-this.radius -this.extra, this.y-this.radius-this.extra+2, 2*(this.radius+this.extra),2*(this.radius+this.extra))
     }
 
     update(){
