@@ -587,6 +587,7 @@ function gameloop(){
             
         }
     }
+    console.log()
 }
 
 
