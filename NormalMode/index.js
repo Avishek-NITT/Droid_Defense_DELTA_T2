@@ -4,7 +4,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
-
+let gamestart = 0
 let player_width = 60
 let player_height = 60
 let homebase_width = canvas.width*0.8
@@ -34,7 +34,7 @@ class Player{
         this.image = img
 
         const bg_img = new Image()
-        bg_img.src = './Pictures/background.png'
+        bg_img.src = './Pictures/background.jpg'
         this.bg_img = bg_img
         
 
@@ -72,15 +72,16 @@ class Player{
         //drawing the healthbar
         Health.update(this.base.health)
         //Updating score
-        ctx.fillStyle='black'
+        ctx.fillStyle='white'
         ctx.font = "25px serif";
-        ctx.fillText(`Score : ${score}`, this.health.x+35   , this.health.y + this.health.height + 80)
+        ctx.fillText(`SCORE: ${score}`, this.health.x+35   , this.health.y + this.health.height + 80)
         //Checking if any wave is finished
         if(this.attackerpool.length ===0){
             this.spawn_attacker()
         }
         //Cheking if health is done
         if(player.base.health <=0){
+            game_over.showModal()
             cancelAnimationFrame(animation)
         }
     }
@@ -246,7 +247,7 @@ function gameloop(){
         }
     }
 }
-gameloop()   //Runs the game
+
 
 
 addEventListener('keydown', ({key}) => {
@@ -269,6 +270,11 @@ addEventListener('keydown', ({key}) => {
 })
 
 addEventListener("click", function (e) {
+    if(gamestart == 0){
+        gamestart =1
+        start_modal.close()
+        gameloop()
+    }
     let m_x = e.clientX
     let m_y = e.clientY
     let p_x = player.position.x
@@ -289,8 +295,8 @@ addEventListener("click", function (e) {
             y:player.position.y + player_height/2
         },
         velocity:{
-            x:5 * scaling_x,
-            y:5* scaling_y
+            x:7 * scaling_x,
+            y:7* scaling_y
         },
         rotation : rot
     }))
@@ -314,22 +320,10 @@ addEventListener("mousemove" , (e) => {
 })
 
 
+start_modal.showModal()
 
 
 
 
 
-// addEventListener("keydown", function(e) {
-//     if(e.code == 'KeyD') player.velocity.x = 5
-//     if(e.code == 'KeyA') player.velocity.x = -5
-//     if(e.code == 'KeyS') player.velocity.y = 5
-//     if(e.code == 'KeyW') player.velocity.y = -5
-// })
-
-// addEventListener("keyup", function(e) {
-//     if(e.code == 'KeyD') player.velocity.x = 0
-//     if(e.code == 'KeyA') player.velocity.x = 0
-//     if(e.code == 'KeyS') player.velocity.y = 0
-//     if(e.code == 'KeyW') player.velocity.y = 0
-// })
 

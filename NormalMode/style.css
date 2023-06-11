@@ -6,3 +6,58 @@ body{
 #gamecanvas{
     background-color: rgb(255, 255, 255);
 }
+
+
+.start_modal{
+    background-color: transparent;
+    backdrop-filter:blur(6px) ;
+    margin: auto;
+    height: 100vh;
+    width: 50vw;
+    align-items: center;
+    border-radius: 5%;
+    display: flex;
+    flex-direction: row;
+    /* align-items: center; */
+    justify-content: center;
+  }
+
+.start_modal::backdrop{
+    background-color: black;
+  }
+
+  #start_text{
+    color: white;
+    padding: 0;
+    position: absolute;
+    align-self: last baseline;
+    font-size: 2em;
+  }
+  #game_name{
+    color: white;
+    position: absolute;
+    font-size: 4em;
+    text-align: center;
+  }
+
+
+  .game_over{
+    background-color: transparent;
+    backdrop-filter:blur(6px) ;
+    margin: auto;
+    height: 100vh;
+    width: 50vw;
+    align-items: center;
+    border-radius: 5%;
+  }
+  .game_over::backdrop{
+    background-color: black;
+  }
+
+  #game_over_text{
+    color: white;
+    position: absolute;
+    font-size: 3em;
+    left: 39%;
+    top: 42%;
+  }
