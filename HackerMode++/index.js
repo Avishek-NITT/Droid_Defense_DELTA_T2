@@ -22,6 +22,7 @@ let missile_exists = 0
 let missile
 let boss
 let boss_exists = 0
+let gamestart = 0
 
 class Player{
     constructor(){
@@ -146,10 +147,18 @@ class Player{
         Health.update(this.base.health)
         //Cheking if health is done
         if(player.base.health <= 0){
+            game_over.showModal()
             cancelAnimationFrame(animation)
+            setTimeout(()=>{
+                location.reload();
+            },1400)
         }
         if(player.player_health <= 0){
+            game_over.showModal()
             cancelAnimationFrame(animation)
+            setTimeout(()=>{
+                location.reload();
+            },1400)
         }
 
         //Drawing boss
@@ -608,7 +617,7 @@ function gameloop(){
 
         if((p_y - boss.y)**2 + (p_x - boss.x)**2 - (boss.radius)**2 < 0){
 
-            boss.health -=10
+            boss.health -=5
             if(boss.health <= 0){
                 boss_exists =0
             }
@@ -627,7 +636,7 @@ function gameloop(){
 }
 
 
-gameloop()   //Runs the game
+
 
 
 function countDown(){
@@ -658,6 +667,11 @@ addEventListener('keydown', ({key}) => {
 })
 
 addEventListener("click", function (e) {
+    if(gamestart ==0){
+        gamestart = 1
+        start_modal.close()
+        gameloop()
+    }
     let m_x = e.clientX
     let m_y = e.clientY
     let p_x = player.position.x
@@ -705,22 +719,7 @@ addEventListener("mousemove" , (e) => {
 })
 
 
+start_modal.showModal()
 
 
-
-
-
-// addEventListener("keydown", function(e) {
-//     if(e.code == 'KeyD') player.velocity.x = 5
-//     if(e.code == 'KeyA') player.velocity.x = -5
-//     if(e.code == 'KeyS') player.velocity.y = 5
-//     if(e.code == 'KeyW') player.velocity.y = -5
-// })
-
-// addEventListener("keyup", function(e) {
-//     if(e.code == 'KeyD') player.velocity.x = 0
-//     if(e.code == 'KeyA') player.velocity.x = 0
-//     if(e.code == 'KeyS') player.velocity.y = 0
-//     if(e.code == 'KeyW') player.velocity.y = 0
-// })
 
