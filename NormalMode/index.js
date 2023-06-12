@@ -1,4 +1,4 @@
-const canvas = document.getElementById("gamecanvas");
+http://127.0.0.1:5500/HackerMode/index.htmlconst canvas = document.getElementById("gamecanvas");
 const ctx = canvas.getContext("2d");
 
 canvas.width = innerWidth;

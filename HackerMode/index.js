@@ -10,7 +10,7 @@ let player_height = 60
 let homebase_width = canvas.width*0.8
 let homebase_height = canvas.height*0.15
 let powerup_exist = 0
-let d
+let gamestart =0
 let power_x, power_y
 let playershoot_audio = new Audio("Audio/Player_shoot.mp3");
 playershoot_audio.volume = 0.5
@@ -87,10 +87,18 @@ class Player{
         }
         //Cheking if health is done
         if(player.base.health <= 0){
+            game_over.showModal()
             cancelAnimationFrame(animation)
+            setTimeout(()=>{
+                location.reload();
+            },1400)
         }
         if(player.player_health <= 0){
+            game_over.showModal()
             cancelAnimationFrame(animation)
+            setTimeout(()=>{
+                location.reload();
+            },1400)
         }
     }
     update(){
@@ -409,7 +417,7 @@ function gameloop(){
 
     
 }
-gameloop()   //Runs the game
+
 
 
 function spawn_powerup(d){
@@ -449,6 +457,11 @@ addEventListener('keydown', ({key}) => {
 })
 
 addEventListener("click", function (e) {
+    if(gamestart == 0){
+        gamestart = 1
+        start_modal.close()
+        gameloop()
+    }
     let m_x = e.clientX
     let m_y = e.clientY
     let p_x = player.position.x
@@ -495,23 +508,6 @@ addEventListener("mousemove" , (e) => {
     }    
 })
 
+start_modal.showModal()
 
-
-
-
-
-
-// addEventListener("keydown", function(e) {
-//     if(e.code == 'KeyD') player.velocity.x = 5
-//     if(e.code == 'KeyA') player.velocity.x = -5
-//     if(e.code == 'KeyS') player.velocity.y = 5
-//     if(e.code == 'KeyW') player.velocity.y = -5
-// })
-
-// addEventListener("keyup", function(e) {
-//     if(e.code == 'KeyD') player.velocity.x = 0
-//     if(e.code == 'KeyA') player.velocity.x = 0
-//     if(e.code == 'KeyS') player.velocity.y = 0
-//     if(e.code == 'KeyW') player.velocity.y = 0
-// })
 
