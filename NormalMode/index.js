@@ -83,6 +83,9 @@ class Player{
         if(player.base.health <=0){
             game_over.showModal()
             cancelAnimationFrame(animation)
+            setTimeout(()=>{
+                location.reload();
+            },1400)
         }
     }
     update(){
