@@ -198,23 +198,36 @@ class Attackers {
 
 class boss_attacker{
     constructor(game,x,y,speed_x, speed_y){
+        this.health = 100
+        this.progress = this.health/100
         this.game = game
         this.x = x
         this.y = y
         this.speed_x = speed_x
         this.speed_y = speed_y
-        this.radius = 60
-        this.extra = 25
+        this.radius = 45
+        this.extra = 55
         const img = new Image()
         img.src = './Pictures/enemy.png'
         this.image = img
     }
     draw(ctx){
-        ctx.strokeStyle = 'transparent'
+        ctx.strokeStyle = 'transperant'
         ctx.beginPath()
         ctx.arc(this.x , this.y, this.radius, 0, Math.PI * 2, true)
         ctx.stroke();
-        ctx.drawImage(this.image, this.x-this.radius -this.extra, this.y-this.radius-this.extra+2, 2*(this.radius+this.extra),2*(this.radius+this.extra))
+        ctx.drawImage(this.image, this.x-this.radius -this.extra, this.y-this.radius-this.extra+10, 2*(this.radius+this.extra),2*(this.radius+this.extra))
+        
+
+        //Drawing its healthbar
+        
+        ctx.fillStyle = 'black'
+        ctx.fillRect(this.x -this.radius -3, this.y+this.radius +3, 2*this.radius +6, 18)
+        ctx.clearRect(this.x - this.raidus, this.y + this.radius + 5, 2*this.radius, 14)
+        ctx.fillStyle = 'green'
+        this.progress = this.health/100
+        ctx.fillRect(this.x - this.radius, this.y + this.radius + 5, (2*this.radius)*this.progress , 14)
+        
     }
     update(){
         this.draw(ctx)
@@ -587,7 +600,30 @@ function gameloop(){
             
         }
     }
-    console.log()
+    //Checking if bullet hits boss
+    
+    for(let i =0 ; i < player_projectiles.length ; i++){
+        let p_x =player_projectiles[i].position.x
+        let p_y = player_projectiles[i].position.y
+
+        if((p_y - boss.y)**2 + (p_x - boss.x)**2 - (boss.radius)**2 < 0){
+
+            boss.health -=10
+            if(boss.health <= 0){
+                boss_exists =0
+            }
+            player_projectiles.splice(i,1)
+            collision_audio.currentTime =0
+            collision_audio.play()
+        }
+    }
+
+    //Checking if boss hits home base
+    if (boss.y + boss.radius > player.base.y  && boss_exists){
+        boss_exists =0
+        player.base.health -= 30
+    }
+
 }
 
 
