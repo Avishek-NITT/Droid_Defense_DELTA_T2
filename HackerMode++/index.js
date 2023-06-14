@@ -112,7 +112,7 @@ class Player{
             let mod = Math.sqrt( (b_x -p_x)**2  + (b_y-p_y)**2)
             const scaling_x = (b_x-p_x)/mod
             const scaling_y = (b_y-p_y)/mod
-            let speed = 1
+            let speed = 1.4
             boss = new boss_attacker(this,b_x, b_y, -speed*scaling_x, -speed* scaling_y)
             boss_exists =1
         }
