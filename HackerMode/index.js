@@ -12,6 +12,8 @@ let homebase_height = canvas.height*0.15
 let powerup_exist = 0
 let gamestart =0
 let power_x, power_y
+let highScore = localStorage.getItem("high-score") || 0;
+let score = 0
 let playershoot_audio = new Audio("Audio/Player_shoot.mp3");
 playershoot_audio.volume = 0.5
 let attacker_audio = new Audio("Audio/attacker_shoot.mp3");
@@ -278,6 +280,16 @@ let animation;
 function gameloop(){
     animation = requestAnimationFrame(gameloop)
     player.update()   //player is drawn
+
+    ctx.fillStyle = 'red'
+    //Displaying score
+
+    ctx.font = "24px serif";
+    ctx.fillText(`SCORE : ${score}`, 10, 55);
+
+    //Displaying high score
+    ctx.font = "24px serif";
+    ctx.fillText(`HIGHSCORE : ${highScore}`, 10, 80);
     
     //Checking if projectile hits Attackers
     for(let i =0 ; i < player_projectiles.length ; i++){
@@ -291,6 +303,9 @@ function gameloop(){
                 player.attackerpool.splice(j,1)
                 collision_audio.currentTime =0
                 collision_audio.play()
+                score++
+                highScore = score >highScore? score:highScore;
+                localStorage.setItem("high-score" , highScore); 
             }
         }
     }
