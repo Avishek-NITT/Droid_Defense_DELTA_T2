@@ -23,6 +23,8 @@ let missile
 let boss
 let boss_exists = 0
 let gamestart = 0
+let highScore = localStorage.getItem("high-score") || 0;
+let score = 0
 
 class Player{
     constructor(){
@@ -446,7 +448,18 @@ const attacker_projectiles = []
 let animation;
 function gameloop(){
     animation = requestAnimationFrame(gameloop)
-    player.update()   //player is drawn    
+    player.update()   //player is drawn  
+    
+    ctx.fillStyle = 'red'
+    //Displaying score
+
+    ctx.font = "24px serif";
+    ctx.fillText(`SCORE : ${score}`, 10, 55);
+
+    //Displaying high score
+    ctx.font = "24px serif";
+    ctx.fillText(`HIGHSCORE : ${highScore}`, 10, 80);
+
     //Checking if any wave is finished
     if(player.attackerpool.length ===0){
         player.spawn_attacker()        
@@ -463,6 +476,9 @@ function gameloop(){
                 player.attackerpool.splice(j,1)
                 collision_audio.currentTime =0
                 collision_audio.play()
+                score++
+                highScore = score >highScore? score:highScore;
+                localStorage.setItem("high-score" , highScore); 
             }
         }
     }
@@ -611,7 +627,7 @@ function gameloop(){
     }
     //Checking if bullet hits boss
     
-    for(let i =0 ; i < player_projectiles.length ; i++){
+    for(let i =0 ; i < player_projectiles.length && boss_exists ; i++){
         let p_x =player_projectiles[i].position.x
         let p_y = player_projectiles[i].position.y
 
@@ -620,6 +636,7 @@ function gameloop(){
             boss.health -=5
             if(boss.health <= 0){
                 boss_exists =0
+                score +=20
             }
             player_projectiles.splice(i,1)
             collision_audio.currentTime =0
