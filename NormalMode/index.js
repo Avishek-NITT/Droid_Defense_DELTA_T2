@@ -255,20 +255,14 @@ function gameloop(){
 
 addEventListener('keydown', ({key}) => {
     switch(key){
-        // case 'w':
-        //     player.velocity.y = -10
-        //     break
-        // case 's':
-        //     player.velocity.y = 10
-        //     break
         case 'a':
-            player.velocity.x = -10
+            if(player.position.x > 70)
+                player.velocity.x = -10          
             break
         case 'd':
-            player.velocity.x = 10
+            if(player.position.x + player.width + 70 < canvas.width)
+                player.velocity.x = 10         
             break
-        case ' ':
-            player.base.health -= 10
         }
 })
 
